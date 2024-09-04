@@ -1,0 +1,10 @@
+:root{
+    --bg-100: #06060A;
+    --bg-200: #15131C;
+    --bg-300: #24202B;
+    --primary: #ADA3D1;
+    --secondary: #3F3073;
+    --accent: #694FBF;
+    --text-color: #ECEAF1;
+    color: var(--text-color);
+}
