@@ -17,7 +17,7 @@ html body {
 }
 
 body {
-    line-height: 1.5;
+    line-height: 1.25;
     -webkit-font-smoothing: antialiased;
     background-color: var(--bg-100);
 }
@@ -39,6 +39,11 @@ h6 {
     overflow-wrap: break-word;
 }
 
+a{
+    color: var(--text-color);
+    text-decoration: none;
+}
+
 .flex-between {
     display: flex;
     justify-content: space-between;
@@ -56,4 +61,20 @@ h6 {
 
 .items-center {
     align-items: center;
+}
+
+.button-accent {
+    background-color: var(--accent);
+    border: none;
+    color: var(--text-color);
+    padding: 0.75rem 1.1rem;
+    border-radius: 0.5rem;
+}
+
+.text-accent {
+    color: var(--accent);
+}
+
+.text-sm {
+    font-size: 0.9rem;
 }
