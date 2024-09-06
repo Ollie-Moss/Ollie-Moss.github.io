@@ -1,8 +1,8 @@
 .footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
+    /* position: fixed; */
+    /* left: 0; */
+    /* bottom: 0; */
+    /* width: 100%; */
     padding: 1.5rem 1.75rem;
     flex-wrap: wrap;
     /* background-color: var(--bg-300); */
