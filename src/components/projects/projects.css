@@ -15,12 +15,24 @@ input[type='search'] {
     color: var(--text-color);
 }
 
+input[type='button']:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
 input[type='button'] {
     background-color: var(--accent);
     border: none;
     color: var(--text-color);
     padding: 0.5rem;
     border-radius: 0.5rem;
+    margin-left: 0.5rem;
+    transition: transform ease-in-out 0.2s;
+}
+
+button:hover {
+    transform: scale(1.1);
+    cursor: pointer;
 }
 
 button {
@@ -30,6 +42,7 @@ button {
     background-color: var(--text-color);
     padding: 0.5rem;
     border-radius: 0.5rem;
+    transition: transform ease-in-out 0.2s;
 }
 #projects-gallery {
     margin-top: 1rem;

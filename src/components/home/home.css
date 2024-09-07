@@ -33,9 +33,15 @@
 #home-section-left > * {
     margin-bottom: 1rem;
 }
-#home-section-left > button {
-    margin-left: 1rem;
+
+#checkout > a{
+    margin-left: 0.5rem;
 }
+.button-accent:hover{
+    transition: transform ease-in-out 0.2s;
+    transform: scale(1.1);
+}
+
 
 #home-section-right {
     display: none;
