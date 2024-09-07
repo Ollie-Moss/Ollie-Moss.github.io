@@ -2,7 +2,7 @@
 
 # Current Start Procedure
 
-Install not dependencies using ```npm i```
+Install node dependencies using ```npm i```
 
 Run ```server.js``` using ```node src/server.js```
 
