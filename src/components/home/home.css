@@ -38,7 +38,6 @@
     margin-left: 0.5rem;
 }
 .button-accent:hover{
-    transition: transform ease-in-out 0.2s;
     transform: scale(1.1);
 }
 
