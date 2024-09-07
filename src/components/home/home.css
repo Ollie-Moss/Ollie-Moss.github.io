@@ -10,6 +10,11 @@
 
 #home-section-left {
     width: 100%;
+    svg:hover{
+        *{
+            stroke: var(--accent);
+        }
+    }
 }
 @media only screen and (min-width: 1280px) {
     #home-section-left {
@@ -54,18 +59,30 @@
     display: inline;
     font-size: 1.25rem;
 }
-#home-right-paragraph > p {
+
+#home-left-paragraph {
+    animation: slide-in ease-in-out 0.7s;
+}
+#checkout {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    animation: slide-in ease-in-out 0.8s;
+}
+#home-left-paragraph > p {
     display: inline;
     font-size: 1.25rem;
 }
 
 #home-section > div > h1 {
     font-size: 4rem;
+    animation: slide-in ease-in-out 0.6s;
 }
 
 #home-section > div > h2 {
     font-size: 2rem;
     font-weight: 400;
+    animation: slide-in ease-in-out 0.5s;
 }
 
 #home-section-left > .socials {

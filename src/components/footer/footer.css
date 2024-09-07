@@ -1,14 +1,15 @@
-#footer{
-    margin-top:auto;
+#footer {
+    margin-top: auto;
 }
 .footer {
-    /* position: absolute;  */
-    /* left: 0; */
-    /* bottom: 0; */
     width: 100%;
     padding: 1.5rem 1.75rem;
     flex-wrap: wrap;
-    /* background-color: var(--bg-300); */
+    svg:hover{
+        *{
+            stroke: var(--accent);
+        }
+    }
 }
 
 .contact-icon-text {

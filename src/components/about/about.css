@@ -49,8 +49,17 @@ pre {
     border: 0.1rem solid var(--accent);
     padding: 1rem;
     text-align: center;
+    h2{
+        margin-bottom: 0.5rem;
+    }
 }
 .skills-card > div {
     display: flex;
     justify-content: space-around;
+    div{
+        align-items: center;
+        display:flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
 }

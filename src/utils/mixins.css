@@ -82,3 +82,15 @@ a {
 .text-sm {
     font-size: 0.9rem;
 }
+
+@keyframes slide-in {
+    from {
+        transform: translateY(-4rem);
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+

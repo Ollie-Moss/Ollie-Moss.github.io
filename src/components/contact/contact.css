@@ -25,6 +25,9 @@
         align-items: center;
         gap: 0.5rem;
     }
+    a:hover{
+        color: var(--accent);
+    }
 }
 
 #contact-form {
