@@ -32,7 +32,7 @@ nav > div {
     align-items: center;
 }
 
-nav > div > a > svg:hover {
+nav > div > a > img:hover {
     cursor: pointer;
 }
 

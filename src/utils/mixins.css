@@ -12,6 +12,8 @@
 }
 
 html body {
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
     min-width: 100vw;
 }
@@ -20,6 +22,8 @@ body {
     line-height: 1.25;
     -webkit-font-smoothing: antialiased;
     background-color: var(--bg-100);
+    min-height: 100%;
+    position: relative;
 }
 
 input,
@@ -39,7 +43,7 @@ h6 {
     overflow-wrap: break-word;
 }
 
-a{
+a {
     color: var(--text-color);
     text-decoration: none;
 }
