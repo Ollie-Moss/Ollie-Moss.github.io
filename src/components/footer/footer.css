@@ -26,6 +26,7 @@ footer {
 
 footer > ul{
     padding: 0;
+    margin-right: 1rem;
     li{
         list-style-type: none;
     }

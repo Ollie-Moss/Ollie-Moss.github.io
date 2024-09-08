@@ -22,7 +22,8 @@ body {
     line-height: 1.25;
     -webkit-font-smoothing: antialiased;
     background-color: var(--bg-100);
-    min-height: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
     position: relative;
 }
 

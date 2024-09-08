@@ -12,7 +12,7 @@ main > * {
 }
 @media only screen and (min-width: 1280px) {
     main > * {
-        padding: 7rem;
+        padding: 2rem 7rem;
     }
 }
 
