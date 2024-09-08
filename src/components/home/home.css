@@ -1,14 +1,22 @@
-#home-section {
+main{
     display: static;
 }
 @media only screen and (min-width: 1280px) {
-    #home-section {
+    main{
         display: flex;
         justify-content: space-between;
     }
 }
+main > * {
+    padding: 3rem;
+}
+@media only screen and (min-width: 1280px) {
+    main > * {
+        padding: 7rem;
+    }
+}
 
-#home-section-left {
+section{
     width: 100%;
     svg:hover{
         *{
@@ -16,80 +24,80 @@
         }
     }
 }
+
 @media only screen and (min-width: 1280px) {
-    #home-section-left {
+    section {
         width: 50%;
     }
 }
-#home-section > div {
-    padding: 3rem;
-}
-@media only screen and (min-width: 1280px) {
-    #home-section > div {
-        padding: 7rem;
-    }
+
+section > *{
+    margin-bottom: 0.5rem;
 }
 
-#home-section-left > * {
-    margin-bottom: 1rem;
+section > h2 {
+    font-size: 2rem;
+    font-weight: 400;
+    animation: slide-in ease-in-out 0.5s;
+}
+section > h1 {
+    font-size: 4rem;
+    animation: slide-in ease-in-out 0.6s;
 }
 
-#checkout > a{
-    margin-left: 0.5rem;
-}
-.button-accent:hover{
-    transform: scale(1.1);
-}
-
-
-#home-section-right {
+aside{
     display: none;
 }
 
 @media only screen and (min-width: 1280px) {
-    #home-section-right {
+    aside{
         width: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
     }
 }
+aside > * {
+    margin-bottom: 1rem;
+}
 
-#home-section-right > img {
+aside > img {
     width: 20vw;
     height: 20vw;
 }
 
-#home-section > div > p {
+
+#home-paragraph > p {
     display: inline;
     font-size: 1.25rem;
 }
 
-#home-left-paragraph {
+#home-paragraph {
     animation: slide-in ease-in-out 0.7s;
 }
-#checkout {
+#home-paragraph > p {
+    display: inline;
+    font-size: 1.25rem;
+}
+
+section > .socials {
+    width: 13rem;
+    padding-left: 0;
+    margin-top: 1rem;
+    li{
+        list-style-type: none;
+    }
+}
+
+#checkout-button > a{
+    margin-left: 0.5rem;
+}
+#checkout-button {
     display: flex;
     gap: 0.5rem;
     align-items: center;
     animation: slide-in ease-in-out 0.8s;
 }
-#home-left-paragraph > p {
-    display: inline;
-    font-size: 1.25rem;
-}
-
-#home-section > div > h1 {
-    font-size: 4rem;
-    animation: slide-in ease-in-out 0.6s;
-}
-
-#home-section > div > h2 {
-    font-size: 2rem;
-    font-weight: 400;
-    animation: slide-in ease-in-out 0.5s;
-}
-
-#home-section-left > .socials {
-    width: 13rem;
+.button-accent:hover{
+    transform: scale(1.1);
 }

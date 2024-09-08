@@ -5,7 +5,7 @@ const port = 3000
 app.use('/', express.static(__dirname))
 
 app.get('/', (req, res) => {
-    res.sendFile('/home/ollie/workspace/web504/portfolio/src/pages/index.html')
+    res.sendFile('/home/ollie/workspace/web504/Ollie-Moss.github.io/src/pages/index.html')
 })
 
 app.listen(port, () => {

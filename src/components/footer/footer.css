@@ -1,7 +1,8 @@
 #footer {
     margin-top: auto;
 }
-.footer {
+
+footer {
     width: 100%;
     padding: 1.5rem 1.75rem;
     flex-wrap: wrap;
@@ -12,9 +13,20 @@
     }
 }
 
-.contact-icon-text {
-    margin: 0.25rem 0;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
+#footer-contact > ul{
+    padding: 0;
+    li{
+        list-style-type: none;
+        margin: 0.25rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+}
+
+footer > ul{
+    padding: 0;
+    li{
+        list-style-type: none;
+    }
 }

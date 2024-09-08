@@ -1,4 +1,4 @@
-#projects {
+main {
     margin: 1rem 2rem;
     h1 {
         font-size: 2.5rem;
@@ -7,6 +7,7 @@
         margin-bottom: 0.5rem;
     }
 }
+
 input[type='search'] {
     background-color: var(--bg-200);
     border: var(--bg-100);
@@ -62,23 +63,6 @@ button {
     border-radius: 0.5rem;
 }
 
-.project-card-info {
-    background-color: var(--accent);
-    padding: 1rem 2rem;
-    border-radius: 0.5rem;
-    padding-bottom: 2rem;
-}
-.project-card-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 1rem;
-    p {
-        background-color: var(--secondary-200);
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.5rem;
-        font-size: 0.9rem;
-    }
-}
 .project-card-header {
     display: flex;
     justify-content: space-between;
@@ -88,3 +72,24 @@ button {
         font-size: 1.25rem;
     }
 }
+
+.project-card-details {
+    background-color: var(--accent);
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+}
+.project-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+    padding: 0;
+    margin-bottom: 1rem;
+    li {
+        list-style-type: none;
+        background-color: var(--secondary-200);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+    }
+}
+
