@@ -1,5 +1,7 @@
+const componentsLoaded = new Event("loaded-components")
+
 function loadComponent(elementId, filePath) {
-    fetch(filePath)
+    return fetch(filePath)
         .then((response) => {
             if (!response.ok) {
                 throw new Error(
@@ -12,10 +14,4 @@ function loadComponent(elementId, filePath) {
             document.getElementById(elementId).innerHTML = data
         })
         .catch((error) => console.error('Error loading component:', error))
-}
-
-window.onload = () => {
-    loadComponent('header', '../components/header/header.html')
-    loadComponent('footer', '../components/footer/footer.html')
-    loadComponent('main', '../components/home/home.html')
 }
