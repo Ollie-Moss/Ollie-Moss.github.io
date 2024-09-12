@@ -1,7 +1,7 @@
 main {
     margin: 1rem 2rem;
 }
-@media only screen and (min-width: 1280px) {
+@media only screen and (min-width: 900px) {
     main {
         margin: 2rem 4rem;
     }
@@ -38,7 +38,7 @@ pre {
     gap: 2rem;
 }
 
-@media only screen and (min-width: 1280px) {
+@media only screen and (min-width: 900px) {
     #skills {
         grid-template-columns: 2fr 2fr;
     }

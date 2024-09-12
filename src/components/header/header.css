@@ -1,4 +1,4 @@
-header {
+.header-flex {
     width: 100%;
     padding: 1.5rem 2rem;
     display: flex;
@@ -10,30 +10,30 @@ header {
     font-weight: 500;
 }
 
-nav{
+nav {
     align-items: center;
     display: none;
     gap: 2rem;
 }
 
-@media only screen and (min-width: 1280px) {
-    nav{
+@media only screen and (min-width: 800px) {
+    nav {
         margin-right: 4rem;
         display: flex;
     }
 }
 
-header svg{
+header svg {
     display: block;
 }
 
-@media only screen and (min-width: 1280px) {
-    header svg{
+@media only screen and (min-width: 800px) {
+    header svg {
         display: none;
     }
 }
 
-nav > a{
+nav > a {
     color: var(--text-color);
     text-decoration: none;
 }
@@ -46,3 +46,20 @@ a {
     cursor: pointer;
 }
 
+#dropdown {
+    display: grid;
+    grid-template-rows: 0fr;
+    nav {
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: start;
+        font-size: 1.7rem;
+        font-weight: bold;
+        * {
+            margin: 1rem 1rem;
+        }
+    }
+    transition: grid-template-rows ease-in-out 0.25s;
+}
