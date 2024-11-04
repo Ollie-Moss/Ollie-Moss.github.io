@@ -1,4 +1,4 @@
-const componentsLoaded = new Event("loaded-components")
+const componentsLoaded = new Event('loaded-components')
 
 function loadComponent(elementId, filePath) {
     return fetch(filePath)

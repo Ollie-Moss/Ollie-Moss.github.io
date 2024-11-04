@@ -3,7 +3,7 @@ main {
     h1 {
         font-size: 2.5rem;
     }
-    p{
+    p {
         margin-bottom: 0.5rem;
     }
 }
@@ -68,7 +68,7 @@ button {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.5rem;
-    h3{
+    h3 {
         font-size: 1.25rem;
     }
 }
@@ -93,3 +93,106 @@ button {
     }
 }
 
+#project-focus {
+    position: absolute;
+    background: var(--bg-300);
+    width: 90%;
+    max-height: 90%;
+    overflow-y: hidden;
+    left: 5%;
+    top: 5%;
+    padding: 1rem 1.25rem;
+    border-radius: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    display: none;
+    z-index: 10;
+}
+@media only screen and (min-width: 800px) {
+    #project-focus{
+        width: 60%;
+        left: 20%;
+        padding: 2rem 2.2rem;
+    }
+}
+
+#project-focus > header {
+    display: flex;
+    justify-content: space-between;
+    i {
+        font-size: 1.5rem;
+    }
+    i:hover {
+        cursor: pointer;
+    }
+}
+
+#project-focus > main {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+#project-focus > main > p {
+    background: var(--bg-200);
+    border-radius: 0.8rem;
+    padding: 1rem;
+}
+
+#comment-form {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+#comment-form > input[type='text'] {
+    border: none;
+    border-bottom: solid 2px white;
+    padding-bottom: 5px;
+    background: none;
+    color: var(--text-color);
+    width: 100%;
+}
+
+#comment-form > input[type='text']:focus {
+    outline: none;
+}
+#comment-form > input[type='submit'] {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+}
+#comment-form > input[type='submit']:hover {
+    cursor: pointer;
+}
+#comment-form > input[type='submit']:disabled:hover{
+    cursor: not-allowed;
+}
+#comment-area {
+    background: var(--bg-200);
+    border-radius: 0.8rem;
+    padding: 1rem;
+}
+#comment-list {
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.comment {
+    background: var(--bg-300);
+    color: var(--text-color);
+    padding: 1rem;
+    border-radius: 0.8rem;
+    header {
+        display: flex;
+        justify-content: space-between;
+        p {
+            opacity: 0.8;
+        }
+    }
+}

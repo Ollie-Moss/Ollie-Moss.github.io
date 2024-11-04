@@ -8,27 +8,59 @@
             placeholder="Enter search here..."
         />
         <input type="button" value="Search" />
-        <div id="projects-gallery">
-            <div class="project-card">
-                <img alt="Taskly preview image." width="100%" src="/assets/images/taskly.png" />
-                <div class="project-card-details">
-                    <div class="project-card-header">
-                        <h3>Taskly</h3>
-                        <button>See More</button>
+        <div id="project-focus">
+            <header>
+                <h2 id="project-title">Project Name</h2>
+                <i id="project-close-button" class="fas fa-times"> </i>
+            </header>
+            <main>
+                <img
+                    alt="Taskly preview image."
+                    width="100%"
+                    src="/assets/images/taskly.png"
+                />
+                <p id="project-description">Description...</p>
+                <section id="comment-section">
+                    <h3>2 Comments</h3>
+                    <div id="comment-area">
+                        <form id="comment-form">
+                            <input type="text" placeholder="Type here..." />
+                            <input id="post-button" value="Post" type="submit" />
+                        </form>
+                        <div id="comment-list">
+                            <div class="comment">
+                                <header>
+                                    <h4>Username</h4>
+                                    <p>7:45 am</p>
+                                </header>
+                                <p>The comment the user has typed</p>
+                            </div>
+                        </div>
                     </div>
-                    <ul class="project-card-tags">
-                        <li>NextJS</li>
-                        <li>Typescript</li>
-                        <li>Firebase</li>
-                        <li>Tailwind</li>
-                    </ul>
-
-                    <p>
-                        Task management web application built for managing courses,
-                        assignments and tasks within NMIT as a student.
-                    </p>
-                </div>
-            </div>
+                </section>
+            </main>
+        </div>
+        <div id="projects-gallery">
+            <!--<div class="project-card">-->
+            <!--    <img alt="Taskly preview image." width="100%" src="/assets/images/taskly.png" />-->
+            <!--    <div class="project-card-details">-->
+            <!--        <div class="project-card-header">-->
+            <!--            <h3>Taskly</h3>-->
+            <!--            <button>See More</button>-->
+            <!--        </div>-->
+            <!--        <ul class="project-card-tags">-->
+            <!--            <li>NextJS</li>-->
+            <!--            <li>Typescript</li>-->
+            <!--            <li>Firebase</li>-->
+            <!--            <li>Tailwind</li>-->
+            <!--        </ul>-->
+            <!---->
+            <!--        <p>-->
+            <!--            Task management web application built for managing courses,-->
+            <!--            assignments and tasks within NMIT as a student.-->
+            <!--        </p>-->
+            <!--    </div>-->
+            <!--</div>-->
         </div>
     </section>
 </main>
