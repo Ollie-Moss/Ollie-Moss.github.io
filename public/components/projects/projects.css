@@ -214,3 +214,14 @@ button {
     justify-content: space-between;
     align-items: center;
 }
+
+.view-replies {
+    padding: 0.5rem 0.1rem 0 0;
+    color: var(--accent);
+    font-weight: bold;
+    width: fit-content;
+}
+.view-replies:hover {
+    color: var(--primary);
+    cursor: pointer;
+}

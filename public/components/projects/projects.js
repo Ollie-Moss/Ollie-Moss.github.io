@@ -4,9 +4,9 @@ window.addEventListener('loaded-components', () => {
     const projectFocus = document.getElementById('project-focus')
     const projectTitle = document.getElementById('project-title')
     const projectDescription = document.getElementById('project-description')
-    const postButton = document.getElementById('post-button')
     const commentArea = document.getElementById('comment-area')
     const commentList = document.getElementById('comment-list')
+    const commentCounter = document.getElementById('comment-counter')
 
     const commentForm = document.getElementById('comment-form')
     const projectCloseButton = document.getElementById('project-close-button')
@@ -47,18 +47,14 @@ window.addEventListener('loaded-components', () => {
     projectCloseButton.addEventListener('click', closeProjectFocus)
     commentForm.addEventListener('submit', postComment)
     auth.onAuthStateChanged((user) => {
-        db.ref(`/comments`).on('value', loadComments)
+        if (user) {
+            db.ref(`/comments`).off('value')
+            db.ref(`/comments`).on('value', loadComments)
+        }
     })
 
     // Intialization
     renderProjects(projects)
-
-    /**
-     * Creates all required HTML Elements for a given list of comments
-     * @param {comment[]} comments
-     * @returns {void}
-     */
-    function renderComments(comments) {}
 
     /**
      * Creates local comment element and updates firebase database with given comment
@@ -87,18 +83,24 @@ window.addEventListener('loaded-components', () => {
      * @returns {void}
      */
     function loadComments(snapshot) {
+        commentList.innerHTML = ''
+        let counter = 0
         snapshot.forEach((childSnapshot) => {
             const comment = childSnapshot.val()
-            addCommentToDOM(comment)
+            const key = childSnapshot.key
+            addCommentToDOM(key, comment)
+            counter += 1
         })
+        commentCounter.textContent = `${counter} Comment${counter == 1 ? '' : 's'}`
     }
 
     /**
      * Renders a given comment to the DOM
+     * @param {string} commentId - Id of the comment
      * @param {Comment} comment - Comment to be rendered
      * @returns {void}
      */
-    function addCommentToDOM(comment) {
+    function addCommentToDOM(commentId, comment) {
         // --- Comment Div ---
         const commentDiv = document.createElement('div')
         commentDiv.classList.add('comment')
@@ -150,17 +152,12 @@ window.addEventListener('loaded-components', () => {
         if (comment.userId == auth.currentUser.uid) {
             controlSectionRight = document.createElement('section')
 
-            // --- Edit Button ---
-            const editButton = document.createElement('button')
-            editButton.classList.add('button-normal')
-            editButton.textContent = 'Edit'
-
             // --- Delete Button ---
             const deleteButton = document.createElement('button')
             deleteButton.classList.add('button-red')
             deleteButton.textContent = 'Delete'
+            deleteButton.onclick = () => deleteComment(commentId)
 
-            controlSectionRight.appendChild(editButton)
             controlSectionRight.appendChild(deleteButton)
         }
 
@@ -169,30 +166,19 @@ window.addEventListener('loaded-components', () => {
             commentControls.appendChild(controlSectionRight)
         }
 
+        const viewReplies = document.createElement('p')
+        viewReplies.classList.add('view-replies')
+        viewReplies.textContent = "View Replies"
+        viewReplies.onclick = () => {
+                // TODO: RENDER REPLIES
+        }
+
         commentDiv.appendChild(header)
         commentDiv.appendChild(commentText)
         commentDiv.appendChild(commentControls)
+        commentDiv.appendChild(viewReplies)
 
         commentList.appendChild(commentDiv)
-
-        // <div class="comment">
-        //     <header>
-        //         <h4>Username</h4>
-        //         <p>7:45 am</p>
-        //     </header>
-        //     <p>The comment the user has typed</p>
-        //     <section class="comment-controls">
-        //          <section>
-        //              <i class="fa-solid fa-heart"></i>
-        //              <i class="fa-solid fa-thumbs-down"></i>
-        //              <button class="button-normal">Reply</button>
-        //          </section>
-        //          <section>
-        //              <button class="button-normal">Edit</button>
-        //              <button class="button-red">Delete</button>
-        //          </section>
-        //     </section>
-        // </div>
     }
     /*
      * Creates a comment record in the firebase database
@@ -212,8 +198,8 @@ window.addEventListener('loaded-components', () => {
      * @returns {void}
      */
     function deleteComment(id) {
-        const commentRef = db.ref(`${auth.currentUser.id}/comments`)
-        commentRef.remove(id)
+        const commentRef = db.ref(`/comments/${id}`)
+        commentRef.remove()
     }
 
     /*
