@@ -31,8 +31,13 @@ form {
 h1 {
     padding-bottom: 2rem;
 }
+
+.input-section {
+    display: flex;
+    flex-direction: column;
+}
 label {
-    padding-bottom: 0.25rem;
+    padding-bottom: .25rem;
 }
 
 .text-input {
