@@ -9,6 +9,11 @@ window.addEventListener('loaded-components', () => {
         dropDownState = !dropDownState
         dropDown.style.gridTemplateRows = dropDownState ? '1fr' : '0fr'
     })
+    window.addEventListener('resize', (e) => {
+        if(e.target.innerWidth > 800){
+            dropDown.style.gridTemplateRows = '0fr'
+        }
+    })
 
     // Get the last auth state from localstorage
     // This optimistically sets the signin/signout button

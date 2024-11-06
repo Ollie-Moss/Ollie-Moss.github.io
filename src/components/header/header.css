@@ -57,16 +57,29 @@ a {
         align-items: start;
         font-size: 1.7rem;
         font-weight: bold;
-        * {
+        a,
+        button {
             margin: 1rem 1rem;
         }
     }
     transition: grid-template-rows ease-in-out 0.25s;
 }
 
-.auth{
+@media only screen and (min-width: 800px) {
+    #dropdown {
+        grid-template-rows: 0fr;
+    }
+}
+
+.auth {
     display: flex;
     gap: 2rem;
+    flex-direction: column;
+}
+@media only screen and (min-width: 800px) {
+    .auth {
+        flex-direction: row;
+    }
 }
 
 .signOut:hover {
