@@ -5,7 +5,7 @@ window.addEventListener('loaded-components', async () => {
     const re_passwordInput = document.getElementById('re-passwordInput')
 
     const loginWithGoogleButtons =
-        document.getElementsByClassName('login-with-google')
+        document.getElementsByClassName('signup-with-google')
 
     for (const btn of loginWithGoogleButtons) {
         btn.addEventListener('click', loginWithGoogle)
@@ -33,17 +33,18 @@ window.addEventListener('loaded-components', async () => {
         }
     }
 
-    function loginWithGoogle() {
+    function loginWithGoogle(e) {
+        e.preventDefault()
         const provider = new firebase.auth.GoogleAuthProvider()
 
-        auth.signInWithRedirect(provider)
-        auth.getRedirectResult()
+        auth.signInWithPopup(provider)
             .then((result) => {
                 const user = result.user
                 window.location.href = '/pages/index.html'
             })
             .catch((error) => {
                 console.log(error.code)
+                //TODO: handle error according to code
                 throw new Error(error.message)
             })
     }

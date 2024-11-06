@@ -115,8 +115,8 @@ p > a {
 p > a:hover {
     color: var(--primary);
 }
-p,
-p > * {
+#signup-form p,
+#signup-form p > * {
     text-align: center;
     opacity: 0.8;
 }

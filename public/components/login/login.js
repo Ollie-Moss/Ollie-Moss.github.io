@@ -1,6 +1,7 @@
 window.addEventListener('loaded-components', async () => {
     const loginForm = document.getElementById('login-form')
-    const loginWithGoogleButtons = document.getElementsByClassName('login-with-google')
+    const loginWithGoogleButtons =
+        document.getElementsByClassName('login-with-google')
     for (const btn of loginWithGoogleButtons) {
         btn.addEventListener('click', loginWithGoogle)
     }
@@ -19,19 +20,30 @@ window.addEventListener('loaded-components', async () => {
 
         setAuthPersistence(rememberMeInput)
         loginWithUserAndPass(emailInput, passwordInput)
-    }
-
-    function loginWithGoogle() {
-        const provider = new firebase.auth.GoogleAuthProvider()
-
-        auth.signInWithRedirect(provider)
-        auth.getRedirectResult()
             .then((result) => {
                 const user = result.user
-                window.location.href = "/pages/index.html";
+                if (user) {
+                    window.location.href = '/pages/index.html'
+                }
             })
             .catch((error) => {
                 console.log(error.code)
+                throw new Error(error.message)
+            })
+    }
+
+    function loginWithGoogle(e) {
+        e.preventDefault()
+        const provider = new firebase.auth.GoogleAuthProvider()
+
+        auth.signInWithPopup(provider)
+            .then((result) => {
+                const user = result.user
+                window.location.href = '/pages/index.html'
+            })
+            .catch((error) => {
+                console.log(error.code)
+                //TODO: handle error according to code
                 throw new Error(error.message)
             })
     }
@@ -40,7 +52,7 @@ window.addEventListener('loaded-components', async () => {
         auth.signInWithEmailAndPassword(email, password)
             .then((result) => {
                 const user = result.user
-                window.location.href = "/pages/index.html";
+                window.location.href = '/pages/index.html'
             })
             .catch((error) => {
                 console.log(error.code)

@@ -7,5 +7,7 @@
     --secondary-200: #33275E;
     --accent: #694FBF;
     --text-color: #ECEAF1;
+    --semantic-red: #D35B5B;
+    --semantic-green: #6BDF85;
     color: var(--text-color);
 }

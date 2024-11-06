@@ -121,8 +121,8 @@ p > a:hover {
 .login-with-google:hover {
     cursor: pointer;
 }
-p,
-p > * {
+#login-form p,
+#login-form p > * {
     text-align: center;
     opacity: 0.8;
 }
