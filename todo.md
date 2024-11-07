@@ -1,10 +1,13 @@
 # TODO
-- Render replies
-- Post reply
-- Likes and dislikes
-- Search functionality for projects
 - Email on contact page
 - Comments for everything
 - Firebase hosting
-- Account management if I feel like it probs not
 - Documentation
+
+# DONE
+- Search functionality for projects
+- Disable commenting for not logged in users
+- Make comments per project
+- Render replies 
+- Post reply 
+- Likes
