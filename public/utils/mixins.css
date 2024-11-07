@@ -11,7 +11,7 @@
     font-family: 'Inter', sans-serif;
 }
 
-html{
+html {
     min-height: 100vh;
     min-width: 100vw;
     height: 100vh;
@@ -92,6 +92,29 @@ a {
     font-size: 0.9rem;
 }
 
+.error-popup {
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    top: 5%;
+    width: 40%;
+    left: 30%;
+    color: var(--semantic-red);
+    z-index: 10;
+    background-color: var(--bg-200);
+    font-weight: bold;
+    transition: opacity ease-out 2s;
+}
+
+@media only screen and (min-width: 800px) {
+    .error-popup {
+        top: 5%;
+        width: 20%;
+        left: 40%;
+    }
+}
+
 @keyframes slide-in {
     from {
         transform: translateY(-4rem);
@@ -102,4 +125,3 @@ a {
         transform: translateY(0);
     }
 }
-

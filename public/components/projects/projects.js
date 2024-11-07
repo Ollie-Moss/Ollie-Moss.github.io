@@ -1,16 +1,18 @@
 window.addEventListener('loaded-components', () => {
     // UI Elements
+    const searchForm = document.getElementById('search-form')
+    const clearSearchButton = document.getElementById('search-clear')
+
     const projectsGallery = document.getElementById('projects-gallery')
     const projectFocus = document.getElementById('project-focus')
     const projectTitle = document.getElementById('project-title')
     const projectDescription = document.getElementById('project-description')
+    const projectCloseButton = document.getElementById('project-close-button')
+
+    const commentForm = document.getElementById('comment-form')
     const commentInput = document.getElementById('comment-input')
     const commentList = document.getElementById('comment-list')
     const commentCounter = document.getElementById('comment-counter')
-
-    const commentForm = document.getElementById('comment-form')
-    const projectCloseButton = document.getElementById('project-close-button')
-    let savedCommentArea
 
     /**
      * List of projects to render
@@ -50,11 +52,15 @@ window.addEventListener('loaded-components', () => {
 
     // Listeners
     projectCloseButton.addEventListener('click', closeProjectFocus)
+
     commentForm.addEventListener('submit', postComment)
 
+    searchForm.addEventListener('submit', searchProjects)
+    clearSearchButton.addEventListener('click', clearSearch)
+
+    // Firebase Listeners
     db.ref(`/comments/`).off('value')
     db.ref(`/comments/`).on('value', (snapshot) => loadComments(snapshot))
-    auth.onAuthStateChanged((user) => {})
 
     // Intialization
     renderProjects(projects)
@@ -66,6 +72,11 @@ window.addEventListener('loaded-components', () => {
      */
     function postComment(e, parentComment = null) {
         e.preventDefault()
+        e.bubbles = false
+        if (!auth.currentUser) {
+            errorPopup('You must be logged in to comment!')
+            return
+        }
         const [commentText] = new FormData(e.target).values()
         commentInput.value = ''
 
@@ -148,10 +159,18 @@ window.addEventListener('loaded-components', () => {
         const heartIcon = document.createElement('i')
         heartIcon.classList.add('fa-solid')
         heartIcon.classList.add('fa-heart')
-        if (comment.likedBy.includes(auth.currentUser.uid)) {
+
+        if (
+            auth.currentUser &&
+            comment.likedBy.includes(auth.currentUser.uid)
+        ) {
             heartIcon.classList.add('liked')
         }
         heartIcon.onclick = () => {
+            if (!auth.currentUser) {
+                errorPopup('You must be logged in to like comments!')
+                return
+            }
             if (comment.likedBy.includes(auth.currentUser.uid)) {
                 updateComment({
                     ...comment,
@@ -166,7 +185,6 @@ window.addEventListener('loaded-components', () => {
                 })
             }
         }
-
 
         // --- Reply Form Area ---
         const replyFormArea = document.createElement('div')
@@ -220,7 +238,7 @@ window.addEventListener('loaded-components', () => {
 
         // --- Comment Controls Section Right ---
         let controlSectionRight = false
-        if (comment.userId == auth.currentUser.uid) {
+        if (auth.currentUser && comment.userId == auth.currentUser.uid) {
             controlSectionRight = document.createElement('section')
 
             // --- Delete Button ---
@@ -334,6 +352,7 @@ window.addEventListener('loaded-components', () => {
         replyDiv.appendChild(replyControls)
         parentNode.appendChild(replyDiv)
     }
+
     /**
      * Creates a comment record in the firebase database
      * @param {Comment} comment - The comment to be created
@@ -420,7 +439,7 @@ window.addEventListener('loaded-components', () => {
     function updateProjectFocus(project) {
         projectTitle.textContent = project.title
         projectDescription.textContent = project.description
-        window.scroll({top: 0, behavior: "smooth"})
+        window.scroll({ top: 0, behavior: 'smooth' })
     }
 
     /**
@@ -431,12 +450,37 @@ window.addEventListener('loaded-components', () => {
         projectFocus.style.display = 'none'
     }
 
+    function clearSearch(e) {
+        e.bubbles = false
+        renderProjects(projects)
+    }
+
+    function searchProjects(e) {
+        e.preventDefault()
+        let [searchInput] = new FormData(e.target).values()
+
+        // Filter based on search
+        const options = {
+            includeScore: true,
+            keys: ['title'],
+        }
+        let fuse = new Fuse(projects, options)
+
+        searchResults = fuse.search(searchInput)
+        searchResults = searchResults.sort((a, b) => a.score - b.score)
+        searchResults = searchResults.map((project) => project.item)
+
+        renderProjects(searchResults)
+    }
+
     /*
      * Creates and renders a list of projects to the DOM
      * @param {Project[]} projects - List of proejects to be rendered
      * @returns {void}
      */
     function renderProjects(projects) {
+        projectsGallery.innerHTML = ''
+
         projects.forEach((project) => {
             const projectCard = document.createElement('div')
             projectCard.classList.add('project-card')
