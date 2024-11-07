@@ -1,11 +1,11 @@
 main {
     margin: 1rem 2rem;
-    h1 {
-        font-size: 2.5rem;
-    }
-    p {
-        margin-bottom: 0.5rem;
-    }
+}
+#projects > section > h1 {
+    font-size: 2.5rem;
+}
+#projects > section > p {
+    margin-bottom: 0.5rem;
 }
 
 input[type='search'] {
@@ -16,7 +16,15 @@ input[type='search'] {
     color: var(--text-color);
 }
 
-input[type='button']:hover {
+input[type='button'],
+button,
+input[type='submit'] {
+    transition: transform ease-in-out 0.2s;
+}
+
+input[type='button']:hover,
+button:hover,
+input[type='submit']:hover {
     transform: scale(1.1);
     cursor: pointer;
 }
@@ -28,30 +36,8 @@ input[type='button'] {
     padding: 0.5rem;
     border-radius: 0.5rem;
     margin-left: 0.5rem;
-    transition: transform ease-in-out 0.2s;
 }
 
-button:hover {
-    transform: scale(1.1);
-    cursor: pointer;
-}
-button {
-    font-weight: 700;
-    border: none;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    transition: transform ease-in-out 0.2s;
-}
-
-.button-normal {
-    color: var(--accent);
-    background-color: var(--text-color);
-}
-
-.button-red {
-    color: var(--text-color);
-    background-color: var(--semantic-red);
-}
 #projects-gallery {
     margin-top: 1rem;
     display: grid;
@@ -147,14 +133,14 @@ button {
     padding: 1rem;
 }
 
-#comment-form {
+.comment-form {
     width: 100%;
     display: flex;
     justify-content: space-between;
     gap: 1rem;
 }
 
-#comment-form > input[type='text'] {
+.comment-form > input[type='text'] {
     border: none;
     border-bottom: solid 2px white;
     padding-bottom: 5px;
@@ -163,22 +149,23 @@ button {
     width: 100%;
 }
 
-#comment-form > input[type='text']:focus {
+.comment-form > input[type='text']:focus {
     outline: none;
 }
-#comment-form > input[type='submit'] {
+.comment-form > input[type='submit'] {
     background: var(--accent);
     color: white;
     border: none;
     border-radius: 0.5rem;
     padding: 0.5rem 1rem;
 }
-#comment-form > input[type='submit']:hover {
+.comment-form > input[type='submit']:hover {
     cursor: pointer;
 }
-#comment-form > input[type='submit']:disabled:hover {
+.comment-form > input[type='submit']:disabled:hover {
     cursor: not-allowed;
 }
+
 #comment-area {
     background: var(--bg-200);
     border-radius: 0.8rem;
@@ -224,4 +211,39 @@ button {
 .view-replies:hover {
     color: var(--primary);
     cursor: pointer;
+}
+
+.reply {
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+}
+
+.reply-form {
+    padding: 1rem 0;
+}
+button:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+}
+button,
+input[type='cancel'] {
+    font-weight: 700;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: transform ease-in-out 0.2s;
+}
+
+.button-normal {
+    color: var(--accent) !important;
+    background-color: var(--text-color) !important;
+}
+
+.button-red {
+    color: var(--text-color) !important;
+    background-color: var(--semantic-red) !important;
+}
+
+.liked {
+    color: red;
 }
