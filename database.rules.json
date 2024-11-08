@@ -1,6 +1,23 @@
 {
   "rules": {
-    ".read": "now < 1732791600000",  // 2024-11-29
-    ".write": "now < 1732791600000",  // 2024-11-29
+    "comments": {
+      ".read": true,
+        
+      "$userId": {
+		"$commentId": {
+          ".write": "$userId === auth.uid",
+
+          "likedBy": {
+          ".write": "data.val() === auth.uid"
+          },
+
+          "replies": {
+            "$replierId": {
+              ".write": "$replierId === auth.uid"
+            }
+          }
+        }
+      }  
+    }
   }
 }

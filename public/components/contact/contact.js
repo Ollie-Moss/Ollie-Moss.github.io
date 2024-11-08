@@ -6,16 +6,21 @@ window.addEventListener('loaded-components', () => {
     function sendEmail(e) {
         e.preventDefault()
         const [name, email, message] = new FormData(e.target).values()
-        console.log(name, email, message)
 
-        transporter
-            .sendMail({
-                from: `"${name}" <${email}>`,
-                to: 'olliemoss321@gmail.com',
-                text: message,
-            })
-            .then((info) => {
-                console.log(info)
-            })
+        fetch('https://sendemail-ckogvybb7a-uc.a.run.app', {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+                'Access-Control-Allow-Origin': 'origin',
+            },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                message: message,
+            }),
+        }).then(async (result) => {
+            const text = await result.text()
+            console.log(text)
+        })
     }
 })

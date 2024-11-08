@@ -50,6 +50,8 @@ window.addEventListener('loaded-components', () => {
 
     let currentProject = 0
 
+    const replySectionsOpen = []
+
     // Listeners
     projectCloseButton.addEventListener('click', closeProjectFocus)
 
@@ -60,7 +62,7 @@ window.addEventListener('loaded-components', () => {
 
     // Firebase Listeners
     db.ref(`/comments/`).off('value')
-    db.ref(`/comments/`).on('value', (snapshot) => loadComments(snapshot))
+    db.ref(`/comments/`).on('value', loadComments)
 
     // Intialization
     renderProjects(projects)
@@ -81,19 +83,34 @@ window.addEventListener('loaded-components', () => {
         commentInput.value = ''
 
         if (auth.currentUser) {
-            createComment(
-                {
-                    userId: auth.currentUser.uid,
-                    projectId: currentProject.id,
-                    user: auth.currentUser.displayName,
-                    text: commentText,
-                    likedBy: [],
-                    timeSent: new Date().toISOString(),
-                    replies: [],
-                },
-                parentComment
-            )
+            const comment = {
+                userId: auth.currentUser.uid,
+                projectId: currentProject.id,
+                user: auth.currentUser.displayName,
+                text: commentText,
+                likedBy: [],
+                timeSent: new Date().toISOString(),
+                replies: [],
+            }
+
+            if (parentComment) {
+                createReply(parentComment, comment)
+                return
+            }
+            createComment(comment)
         }
+    }
+
+    function refreshComments() {
+        // Weird Firebase quirk where if you read from database manually
+        // It will break the event listener so you have to ensure it is
+        // Added back again
+        db.ref('comments')
+            .get()
+            .then((snapshot) => {
+                loadComments(snapshot)
+                db.ref(`/comments/`).on('value', loadComments)
+            })
     }
 
     /**
@@ -104,20 +121,45 @@ window.addEventListener('loaded-components', () => {
     async function loadComments(snapshot) {
         commentList.innerHTML = ''
         let counter = 0
-        snapshot.forEach((childSnapshot) => {
-            const comment = childSnapshot.val()
-            if (comment.projectId === currentProject.id) {
-                if (!comment.hasOwnProperty('likedBy')) {
-                    comment.likedBy = []
+        snapshot.forEach((userSnapshot) => {
+            userSnapshot.forEach((commentSnapshot) => {
+                let comment = commentSnapshot.val()
+                if (comment.projectId === currentProject.id) {
+                    comment = fixCommentProperties(comment)
+                    let replyNode = addCommentToDOM(comment)
+
+                    Object.values(comment.replies).forEach((userReplies) => {
+                        Object.values(userReplies).forEach((reply) => {
+                            if (replySectionsOpen[comment.id]) {
+                                addReplyToDOM(replyNode, comment, reply)
+                            }
+                            counter += 1
+                        })
+                    })
+                    counter += 1
                 }
-                if (!comment.hasOwnProperty('replies')) {
-                    comment.replies = []
-                }
-                addCommentToDOM(comment)
-                counter += 1
-            }
+            })
         })
         commentCounter.textContent = `${counter} Comment${counter == 1 ? '' : 's'}`
+    }
+
+    function fixCommentProperties(comment) {
+        if (!comment.hasOwnProperty('likedBy')) {
+            comment.likedBy = []
+        }
+        if (!comment.hasOwnProperty('replies')) {
+            comment.replies = {}
+        }
+
+        Object.values(comment.replies).forEach((userReplies) => {
+            Object.values(userReplies).forEach((reply) => {
+                if (!reply.hasOwnProperty('likedBy')) {
+                    reply.likedBy = []
+                }
+            })
+        })
+
+        return comment
     }
 
     /**
@@ -256,20 +298,22 @@ window.addEventListener('loaded-components', () => {
         }
 
         let viewReplies
-        let replyList
-        if (comment.replies.length > 0) {
+        let replyList = document.createElement('div')
+        let repliesLength = Object.values(comment.replies).reduce(
+            (acc, userReplies) => (acc += Object.values(userReplies).length),
+            0
+        )
+
+        if (repliesLength > 0) {
             viewReplies = document.createElement('p')
             viewReplies.classList.add('view-replies')
-            viewReplies.textContent = `View ${comment.replies.length} Repl${comment.replies.length == 1 ? 'y' : 'ies'}`
-            replyList = document.createElement('div')
-            let replyState = false
+            viewReplies.textContent = `View ${repliesLength} Repl${repliesLength == 1 ? 'y' : 'ies'}`
+
             viewReplies.onclick = () => {
-                replyState = !replyState
                 replyList.innerHTML = ''
-                if (replyState) {
-                    comment.replies.forEach((reply) => {
-                        addReplyToDOM(replyList, comment, reply)
-                    })
+                replySectionsOpen[comment.id] = replySectionsOpen[comment.id] ? false : true
+                if (replySectionsOpen[comment.id]) {
+                    refreshComments()
                 }
             }
         }
@@ -281,11 +325,10 @@ window.addEventListener('loaded-components', () => {
             commentDiv.appendChild(viewReplies)
         }
         commentDiv.appendChild(replyFormArea)
-        if (replyList) {
-            commentDiv.appendChild(replyList)
-        }
+        commentDiv.appendChild(replyList)
 
         commentList.appendChild(commentDiv)
+        return replyList
     }
 
     function addReplyToDOM(parentNode, comment, reply) {
@@ -316,17 +359,39 @@ window.addEventListener('loaded-components', () => {
         const controlSectionLeft = document.createElement('section')
 
         // --- Heart Icon ---
+        const likesCounter = document.createElement('p')
+        likesCounter.textContent = reply.likedBy.length
         const heartIcon = document.createElement('i')
         heartIcon.classList.add('fa-solid')
         heartIcon.classList.add('fa-heart')
 
-        // --- Thumbs Down Icon ---
-        const thumbsDownIcon = document.createElement('i')
-        thumbsDownIcon.classList.add('fa-solid')
-        thumbsDownIcon.classList.add('fa-thumbs-down')
+        if (auth.currentUser && reply.likedBy.includes(auth.currentUser.uid)) {
+            heartIcon.classList.add('liked')
+        }
+        heartIcon.onclick = () => {
+            if (!auth.currentUser) {
+                errorPopup('You must be logged in to like comments!')
+                return
+            }
+            if (reply.likedBy.includes(auth.currentUser.uid)) {
+                // Removes user from likedBy
+                updateReply(comment, {
+                    ...reply,
+                    likedBy: reply.likedBy.filter(
+                        (id) => id !== auth.currentUser.uid
+                    ),
+                })
+            } else {
+                // Adds user to likedBy
+                updateReply(comment, {
+                    ...reply,
+                    likedBy: [...reply.likedBy, auth.currentUser.uid],
+                })
+            }
+        }
 
+        controlSectionLeft.appendChild(likesCounter)
         controlSectionLeft.appendChild(heartIcon)
-        controlSectionLeft.appendChild(thumbsDownIcon)
 
         // --- Comment Controls Section Right ---
         let controlSectionRight = false
@@ -358,37 +423,10 @@ window.addEventListener('loaded-components', () => {
      * @param {Comment} comment - The comment to be created
      * @returns {void}
      */
-    function createComment(comment, parentComment = null) {
-        const commentKey = db.ref().push({}).key
-        const updates = {}
-
-        if (parentComment) {
-            parentComment.replies.push({ id: commentKey, ...comment })
-            updates[`/comments/${parentComment.id}/`] = parentComment
-        } else {
-            updates[`/comments/${commentKey}/`] = { id: commentKey, ...comment }
-        }
-        db.ref().update(updates)
+    function createComment(comment) {
+        const commentKey = db.ref(`/comments/${auth.currentUser.uid}`).push({}).key
+        updateComment({ id: commentKey, ...comment })
     }
-
-    /**
-     * Deletes a given comment in the firebase database
-     * @param {string} id - The id of the comment to be deleted
-     * @returns {void}
-     */
-    function deleteComment(id) {
-        const commentRef = db.ref(`/comments/${id}`)
-        commentRef.remove()
-    }
-
-    function deleteReply(comment, replyId) {
-        comment.replies = comment.replies.filter((reply) => reply.id != replyId)
-
-        const updates = {}
-        updates[`/comments/${comment.id}/`] = comment
-        db.ref().update(updates)
-    }
-
     /**
      * Updates a given comment in the firebase database
      * @param {Comment} comment - The comment to be update
@@ -396,8 +434,37 @@ window.addEventListener('loaded-components', () => {
      */
     function updateComment(comment) {
         const updates = {}
-        updates[`/comments/${comment.id}/`] = comment
+        updates[`/comments/${comment.userId}/${comment.id}/`] = comment
         db.ref().update(updates)
+    }
+    /**
+     * Deletes a given comment in the firebase database
+     * @param {string} id - The id of the comment to be deleted
+     * @returns {void}
+     */
+    function deleteComment(id) {
+        const commentRef = db.ref(`/comments/${auth.currentUser.uid}/${id}`)
+        commentRef.remove()
+    }
+
+    function createReply(comment, reply) {
+        const replyKey = db.ref(`/comments/${auth.currentUser.uid}`).push({}).key
+        updateReply(comment, { id: replyKey, ...reply })
+    }
+
+    function updateReply(comment, reply) {
+        const updates = {}
+        updates[
+            `/comments/${comment.userId}/${comment.id}/replies/${reply.userId}/${reply.id}`
+        ] = reply
+        db.ref().update(updates)
+    }
+
+    function deleteReply(comment, replyId) {
+        const replyRef = db.ref(
+            `/comments/${comment.userId}/${comment.id}/replies/${auth.currentUser.uid}/${replyId}`
+        )
+        replyRef.remove()
     }
 
     /**
@@ -409,15 +476,7 @@ window.addEventListener('loaded-components', () => {
     function setCurrentProject(project) {
         currentProject = project
         updateProjectFocus(currentProject)
-        // Weird Firebase quirk where if you read from database manually
-        // It will break the event listener so you have to ensure it is
-        // Added back again
-        db.ref('comments')
-            .get()
-            .then((snapshot) => {
-                loadComments(snapshot)
-                db.ref(`/comments/`).on('value', loadComments)
-            })
+        refreshComments()
     }
 
     /**
