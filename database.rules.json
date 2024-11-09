@@ -4,11 +4,13 @@
       ".read": true,
         
       "$userId": {
-		"$commentId": {
+			"$commentId": {
           ".write": "$userId === auth.uid",
 
           "likedBy": {
-          ".write": "data.val() === auth.uid"
+            "$likerId":{
+              ".write": "$likerId === auth.uid"
+            }
           },
 
           "replies": {

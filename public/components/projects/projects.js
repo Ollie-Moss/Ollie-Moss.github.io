@@ -48,8 +48,8 @@ window.addEventListener('loaded-components', () => {
         },
     ]
 
+    // Local UI state
     let currentProject = 0
-
     const replySectionsOpen = []
 
     // Listeners
@@ -70,6 +70,7 @@ window.addEventListener('loaded-components', () => {
     /**
      * Creates local comment element and updates firebase database with given comment
      * @param {SubmitEvent} e - form submission event
+     * @param {Comment} parentComment - The parent comment of the comment to be posted
      * @returns {void}
      */
     function postComment(e, parentComment = null) {
@@ -94,7 +95,11 @@ window.addEventListener('loaded-components', () => {
             }
 
             if (parentComment) {
-                createReply(parentComment, comment)
+                comment.parentComment = {
+                    userId: parentComment.userId,
+                    id: parentComment.id,
+                }
+                createReply(comment)
                 return
             }
             createComment(comment)
@@ -128,13 +133,11 @@ window.addEventListener('loaded-components', () => {
                     comment = fixCommentProperties(comment)
                     let replyNode = addCommentToDOM(comment)
 
-                    Object.values(comment.replies).forEach((userReplies) => {
-                        Object.values(userReplies).forEach((reply) => {
-                            if (replySectionsOpen[comment.id]) {
-                                addReplyToDOM(replyNode, comment, reply)
-                            }
-                            counter += 1
-                        })
+                    comment.replies.forEach((reply) => {
+                        if (replySectionsOpen[comment.id]) {
+                            addReplyToDOM(replyNode, reply)
+                        }
+                        counter += 1
                     })
                     counter += 1
                 }
@@ -144,34 +147,263 @@ window.addEventListener('loaded-components', () => {
     }
 
     function fixCommentProperties(comment) {
+        // Ensure comment has all desired properties
         if (!comment.hasOwnProperty('likedBy')) {
-            comment.likedBy = []
+            comment.likedBy = {}
         }
         if (!comment.hasOwnProperty('replies')) {
             comment.replies = {}
         }
 
-        Object.values(comment.replies).forEach((userReplies) => {
-            Object.values(userReplies).forEach((reply) => {
-                if (!reply.hasOwnProperty('likedBy')) {
-                    reply.likedBy = []
-                }
-            })
+        /* Convert from comment.replies: {
+         *      userid: {
+         *          comment1: {}
+         *      },
+         *      userid: {
+         *          comment2: {}
+         *      }
+         *      ...
+         * }
+         * To comment.replies: {
+         *      [comment1, comment2...]
+         * }
+         */
+        comment.replies = [].concat(
+            ...Object.values(comment.replies).map((userReplies) =>
+                Object.values(userReplies)
+            )
+        )
+
+        /* Convert from comment.likedBy: {
+         *          userid: boolean,
+         *          userid: boolean,
+         *          ...
+         *      }
+         * To comment.likedBy: [userId, userId...]
+         */
+        comment.likedBy = Object.entries(comment.likedBy)
+            .filter(([userId, liked]) => liked)
+            .map(([userId, liked]) => userId)
+
+        // fix replies for each comment
+        comment.replies.forEach((reply) => {
+            if (!reply.hasOwnProperty('likedBy')) {
+                reply.likedBy = []
+            }
+            // Doing likedby conversion again
+            reply.likedBy = Object.entries(reply.likedBy)
+                .filter(([userId, liked]) => liked)
+                .map(([userId, liked]) => userId)
         })
 
         return comment
     }
 
+    function isCommentOwner(comment) {
+        return comment.userId === auth.currentUser.uid
+    }
+
+    // ------- FIREBASE CRUD OPERATIONS ---------
+
+    /**
+     * Creates a comment record in the firebase database
+     * @param {Comment} comment - The comment to be created
+     * @returns {void}
+     */
+    function createComment(comment) {
+        const commentKey = db
+            .ref(`/comments/${auth.currentUser.uid}`)
+            .push({}).key
+        updateComment({ id: commentKey, ...comment })
+    }
+
+    function createReply(reply) {
+        const replyKey = db
+            .ref(`/comments/${auth.currentUser.uid}`)
+            .push({}).key
+        updateReply({ id: replyKey, ...reply })
+    }
+
+    function updateCommentOrReply(comment) {
+        if (comment.hasOwnProperty('parentComment')) {
+            updateReply(comment)
+            return
+        }
+        updateComment(comment)
+    }
+
+    /**
+     * Updates a given comment in the firebase database
+     * @param {Comment} comment - The comment to be update
+     * @returns {void}
+     */
+    function updateComment(comment) {
+        const updates = {}
+        updates[`/comments/${comment.userId}/${comment.id}/`] = comment
+        db.ref().update(updates)
+    }
+
+    function updateReply(reply) {
+        const updates = {}
+        updates[
+            `/comments/${reply.parentComment.userId}/${reply.parentComment.id}/replies/${reply.userId}/${reply.id}`
+        ] = reply
+        db.ref().update(updates)
+    }
+
+    function deleteCommentOrReply(comment) {
+        if (comment.hasOwnProperty('parentComment')) {
+            deleteReply(comment)
+            return
+        }
+        deleteComment(comment)
+    }
+
+    /**
+     * Deletes a given comment in the firebase database
+     * @param {string} id - The id of the comment to be deleted
+     * @returns {void}
+     */
+    function deleteComment(comment) {
+        const commentRef = db.ref(`/comments/${auth.currentUser.uid}/${comment.id}`)
+        commentRef.remove()
+    }
+
+    function deleteReply(reply) {
+        const replyRef = db.ref(
+            `/comments/${reply.parentComment.userId}/${reply.parentComment.id}/replies/${auth.currentUser.uid}/${reply.id}`
+        )
+        replyRef.remove()
+    }
+
+    function likeCommentOrReply(comment, liked) {
+        if (comment.hasOwnProperty('parentComment')) {
+            likeReply(comment, liked)
+            return
+        }
+        likeComment(comment, liked)
+    }
+
+    function likeComment(comment, liked) {
+        const likedByRef = db.ref(
+            `/comments/${comment.userId}/${comment.id}/likedBy/${auth.currentUser.uid}`
+        )
+        likedByRef.set(liked)
+    }
+
+    function likeReply(reply, liked) {
+        const likedByRef = db.ref(
+            `/comments/${reply.parentComment.userId}/${reply.parentComment.id}/replies/${auth.currentUser.uid}/${reply.id}/likedBy/${auth.currentUser.uid}`
+        )
+        likedByRef.set(liked)
+    }
+
+    // --------- DYNAMIC UI CREATION ----------
+
     /**
      * Renders a given comment to the DOM
      * @param {Comment} comment - Comment to be rendered
-     * @returns {void}
+     * @returns {HTMLElement} - The HTML Element in which reply HTML Elements will be appended to
      */
     function addCommentToDOM(comment) {
         // --- Comment Div ---
         const commentDiv = document.createElement('div')
         commentDiv.classList.add('comment')
 
+        const header = createCommentHeader(comment)
+        commentDiv.appendChild(header)
+
+        // --- Comment Text ---
+        const commentText = document.createElement('p')
+        commentText.textContent = comment.text
+        commentDiv.appendChild(commentText)
+
+        // --- Comment Controls ---
+        const commentControls = document.createElement('section')
+        commentControls.classList.add('comment-controls')
+
+        // --- Comment Interactions ---
+        const commentInteractions = createCommentInteractions(comment)
+        // --- Reply Form Area ---
+        const replyFormArea = document.createElement('div')
+        const replyButton = createReplyButton(comment, replyFormArea)
+
+        commentInteractions.appendChild(replyButton)
+        commentControls.appendChild(commentInteractions)
+
+        // Comment Modifications
+        if (isCommentOwner(comment)) {
+            const commentModifications = createCommentModifications(comment)
+            commentControls.appendChild(commentModifications)
+        }
+        commentDiv.appendChild(commentControls)
+
+        const replyList = document.createElement('div')
+        if (comment.replies.length > 0) {
+            const viewRepliesButton = createViewRepliesButton(
+                comment,
+                replyList
+            )
+            commentDiv.appendChild(viewRepliesButton)
+        }
+        commentDiv.appendChild(replyFormArea)
+        commentDiv.appendChild(replyList)
+        commentList.appendChild(commentDiv)
+
+        return replyList
+    }
+
+    function addReplyToDOM(parentNode, reply) {
+        const replyDiv = document.createElement('div')
+        replyDiv.classList.add('reply')
+
+        // --- Header ---
+        header = createCommentHeader(reply)
+        replyDiv.appendChild(header)
+
+        // --- Comment Text ---
+        const replyText = document.createElement('p')
+        replyText.textContent = reply.text
+        replyDiv.appendChild(replyText)
+
+        // --- Comment Controls ---
+        const commentControls = document.createElement('section')
+        commentControls.classList.add('comment-controls')
+
+        const commentInteractions = createCommentInteractions(reply)
+        const commentModifications = createCommentModifications(reply)
+
+        commentControls.appendChild(commentInteractions)
+
+        if (isCommentOwner(reply)) {
+            commentControls.appendChild(commentModifications)
+        }
+        replyDiv.appendChild(commentControls)
+
+        parentNode.appendChild(replyDiv)
+    }
+
+    function createViewRepliesButton(comment, replyList) {
+        let viewReplies = document.createElement('p')
+
+        viewReplies.classList.add('view-replies')
+        viewReplies.textContent = `View ${comment.replies.length} Repl${comment.replies.length == 1 ? 'y' : 'ies'}`
+
+        viewReplies.onclick = () => {
+            replyList.innerHTML = ''
+            // if null or false = true
+            // if true = false
+            replySectionsOpen[comment.id] = replySectionsOpen[comment.id]
+                ? false
+                : true
+            if (replySectionsOpen[comment.id]) {
+                refreshComments()
+            }
+        }
+        return viewReplies
+    }
+
+    function createCommentHeader(comment) {
         // --- Header ---
         const header = document.createElement('header')
         const usernameLabel = document.createElement('h4')
@@ -183,17 +415,12 @@ window.addEventListener('loaded-components', () => {
         )
         header.appendChild(usernameLabel)
         header.appendChild(timestamp)
+        return header
+    }
 
-        // --- Comment Text ---
-        const commentText = document.createElement('p')
-        commentText.textContent = comment.text
-
-        // --- Comment Controls ---
-        const commentControls = document.createElement('section')
-        commentControls.classList.add('comment-controls')
-
+    function createCommentInteractions(comment) {
         // --- Comment Controls Section Left ---
-        const controlSectionLeft = document.createElement('section')
+        const controlInteractions = document.createElement('section')
 
         // --- Heart Icon ---
         const likesCounter = document.createElement('p')
@@ -214,23 +441,34 @@ window.addEventListener('loaded-components', () => {
                 return
             }
             if (comment.likedBy.includes(auth.currentUser.uid)) {
-                updateComment({
-                    ...comment,
-                    likedBy: comment.likedBy.filter(
-                        (id) => id !== auth.currentUser.uid
-                    ),
-                })
+                // Removes user from likedBy
+                likeCommentOrReply(comment, false)
             } else {
-                updateComment({
-                    ...comment,
-                    likedBy: [...comment.likedBy, auth.currentUser.uid],
-                })
+                // Adds user to likedBy
+                likeCommentOrReply(comment, true)
             }
         }
 
-        // --- Reply Form Area ---
-        const replyFormArea = document.createElement('div')
+        controlInteractions.appendChild(likesCounter)
+        controlInteractions.appendChild(heartIcon)
+        return controlInteractions
+    }
 
+    function createCommentModifications(comment) {
+        // --- Comment Controls Section Right ---
+        const commentModifications = document.createElement('section')
+
+        // --- Delete Button ---
+        const deleteButton = document.createElement('button')
+        deleteButton.classList.add('button-red')
+        deleteButton.textContent = 'Delete'
+        deleteButton.onclick = () => deleteCommentOrReply(comment)
+
+        commentModifications.appendChild(deleteButton)
+        return commentModifications 
+    }
+
+    function createReplyButton(comment, replyFormArea) {
         // --- Reply Button ---
         const replyButton = document.createElement('button')
         replyButton.classList.add('button-normal')
@@ -273,198 +511,7 @@ window.addEventListener('loaded-components', () => {
 
             replyFormArea.appendChild(replyForm)
         }
-
-        controlSectionLeft.appendChild(likesCounter)
-        controlSectionLeft.appendChild(heartIcon)
-        controlSectionLeft.appendChild(replyButton)
-
-        // --- Comment Controls Section Right ---
-        let controlSectionRight = false
-        if (auth.currentUser && comment.userId == auth.currentUser.uid) {
-            controlSectionRight = document.createElement('section')
-
-            // --- Delete Button ---
-            const deleteButton = document.createElement('button')
-            deleteButton.classList.add('button-red')
-            deleteButton.textContent = 'Delete'
-            deleteButton.onclick = () => deleteComment(comment.id)
-
-            controlSectionRight.appendChild(deleteButton)
-        }
-
-        commentControls.appendChild(controlSectionLeft)
-        if (controlSectionRight) {
-            commentControls.appendChild(controlSectionRight)
-        }
-
-        let viewReplies
-        let replyList = document.createElement('div')
-        let repliesLength = Object.values(comment.replies).reduce(
-            (acc, userReplies) => (acc += Object.values(userReplies).length),
-            0
-        )
-
-        if (repliesLength > 0) {
-            viewReplies = document.createElement('p')
-            viewReplies.classList.add('view-replies')
-            viewReplies.textContent = `View ${repliesLength} Repl${repliesLength == 1 ? 'y' : 'ies'}`
-
-            viewReplies.onclick = () => {
-                replyList.innerHTML = ''
-                replySectionsOpen[comment.id] = replySectionsOpen[comment.id] ? false : true
-                if (replySectionsOpen[comment.id]) {
-                    refreshComments()
-                }
-            }
-        }
-
-        commentDiv.appendChild(header)
-        commentDiv.appendChild(commentText)
-        commentDiv.appendChild(commentControls)
-        if (viewReplies) {
-            commentDiv.appendChild(viewReplies)
-        }
-        commentDiv.appendChild(replyFormArea)
-        commentDiv.appendChild(replyList)
-
-        commentList.appendChild(commentDiv)
-        return replyList
-    }
-
-    function addReplyToDOM(parentNode, comment, reply) {
-        const replyDiv = document.createElement('div')
-        replyDiv.classList.add('reply')
-
-        // --- Header ---
-        const header = document.createElement('header')
-        const usernameLabel = document.createElement('h4')
-        const timestamp = document.createElement('p')
-        usernameLabel.textContent = reply.user
-        timestamp.textContent = new Date(reply.timeSent).toLocaleTimeString(
-            [],
-            { hour: '2-digit', minute: '2-digit' }
-        )
-        header.appendChild(usernameLabel)
-        header.appendChild(timestamp)
-
-        // --- Comment Text ---
-        const replyText = document.createElement('p')
-        replyText.textContent = reply.text
-
-        // --- Comment Controls ---
-        const replyControls = document.createElement('section')
-        replyControls.classList.add('comment-controls')
-
-        // --- Comment Controls Section Left ---
-        const controlSectionLeft = document.createElement('section')
-
-        // --- Heart Icon ---
-        const likesCounter = document.createElement('p')
-        likesCounter.textContent = reply.likedBy.length
-        const heartIcon = document.createElement('i')
-        heartIcon.classList.add('fa-solid')
-        heartIcon.classList.add('fa-heart')
-
-        if (auth.currentUser && reply.likedBy.includes(auth.currentUser.uid)) {
-            heartIcon.classList.add('liked')
-        }
-        heartIcon.onclick = () => {
-            if (!auth.currentUser) {
-                errorPopup('You must be logged in to like comments!')
-                return
-            }
-            if (reply.likedBy.includes(auth.currentUser.uid)) {
-                // Removes user from likedBy
-                updateReply(comment, {
-                    ...reply,
-                    likedBy: reply.likedBy.filter(
-                        (id) => id !== auth.currentUser.uid
-                    ),
-                })
-            } else {
-                // Adds user to likedBy
-                updateReply(comment, {
-                    ...reply,
-                    likedBy: [...reply.likedBy, auth.currentUser.uid],
-                })
-            }
-        }
-
-        controlSectionLeft.appendChild(likesCounter)
-        controlSectionLeft.appendChild(heartIcon)
-
-        // --- Comment Controls Section Right ---
-        let controlSectionRight = false
-        if (reply.userId == auth.currentUser.uid) {
-            controlSectionRight = document.createElement('section')
-
-            // --- Delete Button ---
-            const deleteButton = document.createElement('button')
-            deleteButton.classList.add('button-red')
-            deleteButton.textContent = 'Delete'
-            deleteButton.onclick = () => deleteReply(comment, reply.id)
-
-            controlSectionRight.appendChild(deleteButton)
-        }
-
-        replyControls.appendChild(controlSectionLeft)
-        if (controlSectionRight) {
-            replyControls.appendChild(controlSectionRight)
-        }
-
-        replyDiv.appendChild(header)
-        replyDiv.appendChild(replyText)
-        replyDiv.appendChild(replyControls)
-        parentNode.appendChild(replyDiv)
-    }
-
-    /**
-     * Creates a comment record in the firebase database
-     * @param {Comment} comment - The comment to be created
-     * @returns {void}
-     */
-    function createComment(comment) {
-        const commentKey = db.ref(`/comments/${auth.currentUser.uid}`).push({}).key
-        updateComment({ id: commentKey, ...comment })
-    }
-    /**
-     * Updates a given comment in the firebase database
-     * @param {Comment} comment - The comment to be update
-     * @returns {void}
-     */
-    function updateComment(comment) {
-        const updates = {}
-        updates[`/comments/${comment.userId}/${comment.id}/`] = comment
-        db.ref().update(updates)
-    }
-    /**
-     * Deletes a given comment in the firebase database
-     * @param {string} id - The id of the comment to be deleted
-     * @returns {void}
-     */
-    function deleteComment(id) {
-        const commentRef = db.ref(`/comments/${auth.currentUser.uid}/${id}`)
-        commentRef.remove()
-    }
-
-    function createReply(comment, reply) {
-        const replyKey = db.ref(`/comments/${auth.currentUser.uid}`).push({}).key
-        updateReply(comment, { id: replyKey, ...reply })
-    }
-
-    function updateReply(comment, reply) {
-        const updates = {}
-        updates[
-            `/comments/${comment.userId}/${comment.id}/replies/${reply.userId}/${reply.id}`
-        ] = reply
-        db.ref().update(updates)
-    }
-
-    function deleteReply(comment, replyId) {
-        const replyRef = db.ref(
-            `/comments/${comment.userId}/${comment.id}/replies/${auth.currentUser.uid}/${replyId}`
-        )
-        replyRef.remove()
+        return replyButton
     }
 
     /**
