@@ -8,12 +8,32 @@ main {
     margin-bottom: 0.5rem;
 }
 
+#search-form {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    div {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: space-between;
+    }
+}
+
+@media only screen and (min-width: 800px) {
+    #search-form {
+        width: fit-content;
+    }
+}
+
 input[type='search'] {
     background-color: var(--bg-200);
     border: var(--bg-100);
     border-radius: 0.5rem;
     padding: 0.5rem;
     color: var(--text-color);
+    flex-grow: 1;
 }
 
 input[type='button'],
@@ -36,7 +56,6 @@ input[type='button'] {
     color: var(--text-color);
     padding: 0.5rem;
     border-radius: 0.5rem;
-    margin-left: 0.5rem;
 }
 
 #projects-gallery {
@@ -141,7 +160,8 @@ input[type='button'] {
     gap: 1rem;
 }
 
-.comment-form > input[type='text'] {
+.comment-form > input[type='text'],
+.comment-input {
     border: none;
     border-bottom: solid 2px white;
     padding-bottom: 5px;
@@ -150,7 +170,8 @@ input[type='button'] {
     width: 100%;
 }
 
-.comment-form > input[type='text']:focus {
+.comment-form > input[type='text']:focus,
+.comment-input:focus {
     outline: none;
 }
 .comment-form > input[type='submit'] {
@@ -173,10 +194,13 @@ input[type='button'] {
     padding: 1rem;
 }
 #comment-list {
-    padding: 1rem 0;
+    padding-bottom: 1rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+#comment-list:has(.comment) {
+    padding: 1rem 0;
 }
 .comment {
     background: var(--bg-300);
@@ -248,4 +272,15 @@ input[type='cancel'] {
 
 .liked {
     color: red;
+}
+
+.comment-text {
+    margin: 0.75rem 0;
+}
+#comment-counter {
+    padding: 0.5rem 0;
+}
+
+.reply > .comment-text {
+    margin: 0.5rem 0;
 }

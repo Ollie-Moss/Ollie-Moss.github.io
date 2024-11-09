@@ -5,6 +5,9 @@ window.addEventListener('loaded-components', () => {
 
     function sendEmail(e) {
         e.preventDefault()
+        if(!auth.currentUser){
+            errorPopup("You must be logged in to send an email!")
+        }
         const [name, email, message] = new FormData(e.target).values()
 
         fetch('https://sendemail-ckogvybb7a-uc.a.run.app', {
@@ -22,5 +25,8 @@ window.addEventListener('loaded-components', () => {
             const text = await result.text()
             console.log(text)
         })
+        .catch(error => {
+                console.log(`There was an error sending the email: ${error.message}`)
+            })
     }
 })

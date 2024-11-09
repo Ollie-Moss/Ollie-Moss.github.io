@@ -20,46 +20,16 @@ window.addEventListener('loaded-components', async () => {
 
         setAuthPersistence(rememberMeInput)
         loginWithUserAndPass(emailInput, passwordInput)
-            .then((result) => {
-                const user = result.user
-                if (user) {
-                    window.location.href = '/pages/index.html'
-                }
-            })
-            .catch((error) => {
-                console.log(error.code)
-                throw new Error(error.message)
-            })
-    }
-
-    function loginWithGoogle(e) {
-        e.preventDefault()
-        const provider = new firebase.auth.GoogleAuthProvider()
-
-        auth.signInWithPopup(provider)
-            .then((result) => {
-                const user = result.user
-                window.location.href = '/pages/index.html'
-            })
-            .catch((error) => {
-                console.log(error.code)
-                //TODO: handle error according to code
-                throw new Error(error.message)
-            })
     }
 
     function loginWithUserAndPass(email, password) {
         auth.signInWithEmailAndPassword(email, password)
             .then((result) => {
-                const user = result.user
                 window.location.href = '/pages/index.html'
             })
-            .catch((error) => {
-                console.log(error.code)
-                //TODO: handle error according to code
-                throw new Error(error.message)
-            })
+            .catch(handleAuthError)
     }
+
     function setAuthPersistence(local) {
         const state = local
             ? firebase.auth.Auth.Persistence.LOCAL

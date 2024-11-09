@@ -3,12 +3,23 @@
         <h1>Sign Up</h1>
         <form id="signup-form">
             <div class="input-section">
+                <label for="nameInput">Display Name:</label>
+                <input
+                    id="nameInput"
+                    class="text-input"
+                    name="display-name"
+                    placeholder="Enter display name"
+                    type="text"
+                />
+                <span class="text-input"></span>
+            </div>
+            <div class="input-section">
                 <label for="emailInput">Email:</label>
                 <input
                     id="emailInput"
                     class="text-input"
-                    name="username"
-                    placeholder="someone@example.com"
+                    name="email"
+                    placeholder="Enter your email address"
                     type="email"
                 />
                 <span class="text-input"></span>
@@ -20,18 +31,18 @@
                     id="passwordInput"
                     class="text-input"
                     name="password"
-                    placeholder="Enter password..."
+                    placeholder="Create a password"
                     type="password"
                 />
                 <span class="text-input"></span>
             </div>
             <div>
-                <label for="passwordInput">Re-Enter Password:</label>
+                <label for="passwordInput">Confirm Password:</label>
                 <input
                     id="re-passwordInput"
                     class="text-input"
                     name="re-password"
-                    placeholder="Re-Enter password..."
+                    placeholder="Re-enter your password"
                     type="password"
                 />
                 <span class="text-input"></span>

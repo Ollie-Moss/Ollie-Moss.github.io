@@ -26,39 +26,23 @@ window.addEventListener('loaded-components', async () => {
         // and associates them as a key value pair {ElemName: Value}
         // all elements without a name attribute are omitted
         const data = new FormData(e.target)
-        let [emailInput, passwordInput] = data.values()
+        let [display_name, emailInput, passwordInput] = data.values()
         if (password_match) {
-            console.log("here")
-            signUpWithUserAndPass(emailInput, passwordInput)
+            signUpWithUserAndPass(display_name, emailInput, passwordInput)
+        } else {
+            errorPopup('Passwords do not match!')
         }
     }
 
-    function loginWithGoogle(e) {
-        e.preventDefault()
-        const provider = new firebase.auth.GoogleAuthProvider()
-
-        auth.signInWithPopup(provider)
-            .then((result) => {
-                const user = result.user
-                window.location.href = '/pages/index.html'
-            })
-            .catch((error) => {
-                console.log(error.code)
-                //TODO: handle error according to code
-                throw new Error(error.message)
-            })
-    }
-
-    function signUpWithUserAndPass(email, password) {
+    function signUpWithUserAndPass(display_name, email, password) {
         auth.createUserWithEmailAndPassword(email, password)
             .then((result) => {
                 const user = result.user
+                result.user.updateProfile({
+                    displayName: display_name,
+                })
                 window.location.href = '/pages/index.html'
             })
-            .catch((error) => {
-                console.log(error.code)
-                //TODO: handle error according to code
-                throw new Error(error.message)
-            })
+            .catch(handleAuthError)
     }
 })
