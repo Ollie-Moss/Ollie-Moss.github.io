@@ -99,8 +99,6 @@ window.addEventListener('loaded-components', () => {
                     userId: parentComment.userId,
                     id: parentComment.id,
                 }
-                createReply(comment)
-                return
             }
             createComment(comment)
         }
@@ -211,52 +209,12 @@ window.addEventListener('loaded-components', () => {
      * @returns {void}
      */
     function createComment(comment) {
-        const commentKey = db
-            .ref(`/comments/${auth.currentUser.uid}`)
-            .push({}).key
-        updateComment({ id: commentKey, ...comment })
+        const key = db.ref(`/comments/${auth.currentUser.uid}`).push({}).key
+        updateComment({ id: key, ...comment })
     }
 
-    function createReply(reply) {
-        const replyKey = db
-            .ref(`/comments/${auth.currentUser.uid}`)
-            .push({}).key
-        updateReply({ id: replyKey, ...reply })
-    }
-
-    function updateCommentOrReply(comment) {
-        if (comment.hasOwnProperty('parentComment')) {
-            updateReply(comment)
-            return
-        }
-        updateComment(comment)
-    }
-
-    /**
-     * Updates a given comment in the firebase database
-     * @param {Comment} comment - The comment to be update
-     * @returns {void}
-     */
     function updateComment(comment) {
-        const updates = {}
-        updates[`/comments/${comment.userId}/${comment.id}/`] = comment
-        db.ref().update(updates)
-    }
-
-    function updateReply(reply) {
-        const updates = {}
-        updates[
-            `/comments/${reply.parentComment.userId}/${reply.parentComment.id}/replies/${reply.userId}/${reply.id}`
-        ] = reply
-        db.ref().update(updates)
-    }
-
-    function deleteCommentOrReply(comment) {
-        if (comment.hasOwnProperty('parentComment')) {
-            deleteReply(comment)
-            return
-        }
-        deleteComment(comment)
+        getCommentRef(comment).update(comment)
     }
 
     /**
@@ -265,37 +223,22 @@ window.addEventListener('loaded-components', () => {
      * @returns {void}
      */
     function deleteComment(comment) {
-        const commentRef = db.ref(`/comments/${auth.currentUser.uid}/${comment.id}`)
-        commentRef.remove()
-    }
-
-    function deleteReply(reply) {
-        const replyRef = db.ref(
-            `/comments/${reply.parentComment.userId}/${reply.parentComment.id}/replies/${auth.currentUser.uid}/${reply.id}`
-        )
-        replyRef.remove()
-    }
-
-    function likeCommentOrReply(comment, liked) {
-        if (comment.hasOwnProperty('parentComment')) {
-            likeReply(comment, liked)
-            return
-        }
-        likeComment(comment, liked)
+        getCommentRef(comment).remove()
     }
 
     function likeComment(comment, liked) {
-        const likedByRef = db.ref(
-            `/comments/${comment.userId}/${comment.id}/likedBy/${auth.currentUser.uid}`
+        const likedByRef = getCommentRef(comment).child(
+            `likedBy/${auth.currentUser.uid}`
         )
         likedByRef.set(liked)
     }
 
-    function likeReply(reply, liked) {
-        const likedByRef = db.ref(
-            `/comments/${reply.parentComment.userId}/${reply.parentComment.id}/replies/${auth.currentUser.uid}/${reply.id}/likedBy/${auth.currentUser.uid}`
-        )
-        likedByRef.set(liked)
+    function getCommentRef(comment) {
+        return comment.hasOwnProperty('parentComment')
+            ? db.ref(
+                  `/comments/${comment.parentComment.userId}/${comment.parentComment.id}/replies/${auth.currentUser.uid}/${comment.id}`
+              )
+            : db.ref(`/comments/${comment.userId}/${comment.id}`)
     }
 
     // --------- DYNAMIC UI CREATION ----------
@@ -440,13 +383,10 @@ window.addEventListener('loaded-components', () => {
                 errorPopup('You must be logged in to like comments!')
                 return
             }
-            if (comment.likedBy.includes(auth.currentUser.uid)) {
-                // Removes user from likedBy
-                likeCommentOrReply(comment, false)
-            } else {
-                // Adds user to likedBy
-                likeCommentOrReply(comment, true)
-            }
+            likeComment(
+                comment,
+                !comment.likedBy.includes(auth.currentUser.uid)
+            )
         }
 
         controlInteractions.appendChild(likesCounter)
@@ -462,10 +402,10 @@ window.addEventListener('loaded-components', () => {
         const deleteButton = document.createElement('button')
         deleteButton.classList.add('button-red')
         deleteButton.textContent = 'Delete'
-        deleteButton.onclick = () => deleteCommentOrReply(comment)
+        deleteButton.onclick = () => deleteComment(comment)
 
         commentModifications.appendChild(deleteButton)
-        return commentModifications 
+        return commentModifications
     }
 
     function createReplyButton(comment, replyFormArea) {
