@@ -96,3 +96,16 @@ a {
     border-radius: 0.5rem;
     transition: transform ease-in-out 0.2s;
 }
+
+#verify-email {
+    width: 100%;
+    padding: 1.25rem;
+    background-color: var(--bg-200);
+    a {
+        color: var(--accent);
+    }
+}
+
+.hidden{
+    display: none;
+}

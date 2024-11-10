@@ -27,7 +27,7 @@ function errorPopup(message) {
     }
     document.body.appendChild(popup)
 
-    setInterval(() => (popup.style.opacity = 0), 5000)
+    setTimeout(() => (popup.style.opacity = 0), 5000)
 }
 
 function confirmPopup(message) {
@@ -91,11 +91,22 @@ function loginWithGoogle(e) {
     e.preventDefault()
     const provider = new firebase.auth.GoogleAuthProvider()
 
+    setAuthPersistenceToLocal()
     auth.signInWithPopup(provider)
         .then((result) => {
             window.location.href = '/pages/index.html'
         })
         .catch(handleAuthError)
+}
+
+function setAuthPersistenceToLocal() {
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .then(() => {
+            console.log('Firebase Auth persistence set to LOCAL')
+        })
+        .catch((error) => {
+            console.error('Error setting persistence:', error)
+        })
 }
 
 function handleAuthError(error) {
@@ -112,6 +123,9 @@ function handleAuthError(error) {
             break
         case 'auth/invalid-email':
             errorPopup('Please provide a valid email!')
+            break
+        case 'auth/popup-closed-by-user':
+            // Do nothing
             break
         default:
             errorPopup('There was an error logging in, try again later!')

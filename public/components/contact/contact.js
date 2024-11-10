@@ -5,8 +5,13 @@ window.addEventListener('loaded-components', () => {
 
     function sendEmail(e) {
         e.preventDefault()
-        if(!auth.currentUser){
-            errorPopup("You must be logged in to send an email!")
+        if (!auth.currentUser) {
+            errorPopup('You must be logged in to send an email!')
+            return
+        }
+        if (auth.currentUser && !auth.currentUser.emailVerified) {
+            errorPopup('You must have a verified account to send an email!')
+            return
         }
         const [name, email, message] = new FormData(e.target).values()
 
@@ -21,12 +26,15 @@ window.addEventListener('loaded-components', () => {
                 email: email,
                 message: message,
             }),
-        }).then(async (result) => {
-            const text = await result.text()
-            console.log(text)
         })
-        .catch(error => {
-                console.log(`There was an error sending the email: ${error.message}`)
+            .then(async (result) => {
+                const text = await result.text()
+                console.log(text)
+            })
+            .catch((error) => {
+                console.log(
+                    `There was an error sending the email: ${error.message}`
+                )
             })
     }
 })

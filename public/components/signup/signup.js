@@ -40,7 +40,10 @@ window.addEventListener('loaded-components', async () => {
                 const user = result.user
                 result.user.updateProfile({
                     displayName: display_name,
+                    
                 })
+
+                user.sendEmailVerification()
                 window.location.href = '/pages/index.html'
             })
             .catch(handleAuthError)

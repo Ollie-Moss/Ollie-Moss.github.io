@@ -24,7 +24,7 @@ window.addEventListener('loaded-components', async () => {
 
     function loginWithUserAndPass(email, password) {
         auth.signInWithEmailAndPassword(email, password)
-            .then((result) => {
+            .then(() => {
                 window.location.href = '/pages/index.html'
             })
             .catch(handleAuthError)

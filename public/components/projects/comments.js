@@ -7,7 +7,9 @@ window.addEventListener('loaded-components', () => {
     const commentCounter = document.getElementById('comment-counter')
 
     // Local UI state
-    const replySectionsOpen = []
+    const replySectionsOpen = {}
+    const replyFormState = {}
+    let lastSelectedInput
 
     // Listeners
 
@@ -28,6 +30,10 @@ window.addEventListener('loaded-components', () => {
         e.bubbles = false
         if (!auth.currentUser) {
             errorPopup('You must be logged in to comment!')
+            return
+        }
+        if (auth.currentUser && !auth.currentUser.emailVerified) {
+            errorPopup('You must have a verified account to comment!')
             return
         }
         const [commentText] = new FormData(e.target).values()
@@ -206,7 +212,7 @@ window.addEventListener('loaded-components', () => {
     function getCommentRef(comment) {
         return comment.hasOwnProperty('parentComment')
             ? db.ref(
-                  `/comments/${comment.parentComment.userId}/${comment.parentComment.id}/replies/${auth.currentUser.uid}/${comment.id}`
+                  `/comments/${comment.parentComment.userId}/${comment.parentComment.id}/replies/${comment.userId}/${comment.id}`
               )
             : db.ref(`/comments/${comment.userId}/${comment.id}`)
     }
@@ -340,6 +346,10 @@ window.addEventListener('loaded-components', () => {
                 errorPopup('You must be logged in to like comments!')
                 return
             }
+            if (auth.currentUser && !auth.currentUser.emailVerified) {
+                errorPopup('You must have a verified account to like comments!')
+                return
+            }
             likeComment(
                 comment,
                 !comment.likedBy.includes(auth.currentUser.uid)
@@ -418,11 +428,20 @@ window.addEventListener('loaded-components', () => {
         const replyButton = document.createElement('button')
         replyButton.classList.add('button-normal')
         replyButton.textContent = 'Reply'
-        let replyFormState = false
+
+        if (replyFormState[comment.id]) {
+            replyFormArea.replaceChildren(replyFormState[comment.id])
+
+            if (lastSelectedInput === comment.id) {
+                window.setTimeout(() => {
+                    let commentInput =
+                        replyFormArea.getElementsByTagName('input')['comment']
+                    commentInput.focus()
+                }, 0)
+            }
+        }
         replyButton.onclick = () => {
             replyFormArea.innerHTML = ''
-            replyFormState = !replyFormState
-            if (!replyFormState) return
             const replyForm = document.createElement('form')
             replyForm.classList.add('comment-form')
             replyForm.classList.add('reply-form')
@@ -430,6 +449,9 @@ window.addEventListener('loaded-components', () => {
             commentInput.type = 'text'
             commentInput.name = 'comment'
             commentInput.placeholder = 'Enter reply here...'
+            commentInput.onfocus = () => {
+                lastSelectedInput = comment.id
+            }
 
             const cancelButton = document.createElement('input')
             cancelButton.type = 'button'
@@ -441,19 +463,23 @@ window.addEventListener('loaded-components', () => {
             postButton.value = 'Post'
 
             cancelButton.onclick = (e) => {
-                replyFormArea.removeChild(replyForm)
+                replyForm.parentElement.innerHTML = ''
             }
 
             replyForm.onsubmit = (e) => {
                 postComment(e, comment)
                 commentInput.value = ''
-                replyFormArea.removeChild(replyForm)
+                replyForm.parentElement.innerHTML = ''
             }
 
             replyForm.appendChild(commentInput)
             replyForm.appendChild(cancelButton)
             replyForm.appendChild(postButton)
 
+            replyFormState[comment.id] = replyFormState[comment.id]
+                ? null
+                : replyForm
+            if (!replyFormState[comment.id]) return
             replyFormArea.appendChild(replyForm)
         }
         return replyButton
