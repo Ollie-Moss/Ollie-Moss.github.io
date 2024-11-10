@@ -4,6 +4,6 @@
 
 Install node dependencies using ```npm i```
 
-Run ```server.js``` using ```node src/server.js```
+Run ```server.js``` using ```node server.js```
 
 Access webpage through ```localhost:3000/pages/[page_name].html```
