@@ -1,0 +1,25 @@
+{
+  "rules": {
+    "comments": {
+      ".read": true,
+        
+      "$userId": {
+			"$commentId": {
+          ".write": "$userId === auth.uid",
+
+          "likedBy": {
+            "$likerId":{
+              ".write": "$likerId === auth.uid"
+            }
+          },
+
+          "replies": {
+            "$replierId": {
+              ".write": "$replierId === auth.uid"
+            }
+          }
+        }
+      }  
+    }
+  }
+}

@@ -1,0 +1,47 @@
+<main>
+    <section id="login-section">
+        <h1>Login</h1>
+        <form id="login-form">
+            <div class="input-section">
+                <label for="emailInput">Email:</label>
+                <input
+                    id="emailInput"
+                    class="text-input"
+                    name="username"
+                    placeholder="someone@example.com"
+                    type="email"
+                />
+                <span class="text-input"></span>
+            </div>
+
+            <div class="input-section">
+                <label for="passwordInput">Password:</label>
+                <input
+                    id="paswordInput"
+                    class="text-input"
+                    name="password"
+                    autocomplete="current-password"
+                    placeholder="Enter password..."
+                    type="password"
+                />
+                <span class="text-input"></span>
+            </div>
+            <section id="login-settings">
+                <div>
+                    <input id="remember-me" name="remember-me" type="checkbox" />
+                    <label for="remember-me">Remember me</label>
+                </div>
+                <a href="">Forgot Password?</a>
+            </section>
+            <input value="Login" type="submit" />
+            <div id="seperator">
+                Or
+            </div>
+
+            <button class="login-with-google">
+                <i class="fa-brands fa-google"></i> Login With Google
+            </button>
+            <p class="text-sm">By owning an account you have acknowledged the <a>Terms & Services.</a></p>
+        </form>
+    </section>
+</main>

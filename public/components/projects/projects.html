@@ -1,0 +1,52 @@
+<main id="projects">
+    <section>
+        <h1>Projects</h1>
+        <p>These are personal projects demonstrating my skills.</p>
+        <form id="search-form">
+            <input
+                id="projects-search-input"
+                name="search-input"
+                type="search"
+                placeholder="Enter search here..."
+            />
+            <div>
+                <input type="submit" value="Search" />
+                <input id="search-clear" type="button" value="Clear" />
+            </div>
+        </form>
+        <div id="project-focus">
+            <header>
+                <h2 id="project-title">Project Name</h2>
+                <i id="project-close-button" class="fas fa-times"> </i>
+            </header>
+            <main>
+                <img
+                    alt="Taskly preview image."
+                    width="100%"
+                    src="/assets/images/taskly.png"
+                />
+                <p id="project-description">Description...</p>
+                <section id="comment-section">
+                    <h3 id="comment-counter">0 Comments</h3>
+                    <div id="comment-area">
+                        <form id="comment-form" class="comment-form">
+                            <input
+                                id="comment-input"
+                                type="text"
+                                name="comment"
+                                placeholder="Type here..."
+                            />
+                            <input
+                                id="post-button"
+                                value="Post"
+                                type="submit"
+                            />
+                        </form>
+                        <div id="comment-list"></div>
+                    </div>
+                </section>
+            </main>
+        </div>
+        <div id="projects-gallery"></div>
+    </section>
+</main>
