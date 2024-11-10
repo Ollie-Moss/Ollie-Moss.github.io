@@ -22,6 +22,13 @@ window.addEventListener('loaded-components', async () => {
         loginWithUserAndPass(emailInput, passwordInput)
     }
 
+    /**
+     * Logins user in with an email and password
+     * Redirects to home pages upon success
+     * @param {string} email - The email of the account
+     * @param {string} password - The password of the account
+     * @returns {void}
+     */
     function loginWithUserAndPass(email, password) {
         auth.signInWithEmailAndPassword(email, password)
             .then(() => {
@@ -30,6 +37,11 @@ window.addEventListener('loaded-components', async () => {
             .catch(handleAuthError)
     }
 
+    /**
+     * Sets the authentication persistence to either local or session
+     * @param {boolean} local - Whether the persistence should be set to local or session
+     * @returns {void}
+     */
     function setAuthPersistence(local) {
         const state = local
             ? firebase.auth.Auth.Persistence.LOCAL

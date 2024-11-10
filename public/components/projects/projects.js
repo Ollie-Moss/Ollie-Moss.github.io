@@ -24,15 +24,6 @@ const projects = [
             'Task management web application built for managing courses, assignments and tasks within NMIT as a student.',
         tags: ['NextJS', 'Typescript', 'Firebase', 'Tailwind'],
     },
-    {
-        id: 1,
-        title: 'Python blah blah',
-        img: '/assets/images/taskly.png',
-        alt: 'Taskly Preview Image',
-        description:
-            'Task management web application built for managing courses, assignments and tasks within NMIT as a student.',
-        tags: ['NextJS', 'Typescript', 'Firebase', 'Tailwind'],
-    },
 ]
 
 window.addEventListener('loaded-components', () => {

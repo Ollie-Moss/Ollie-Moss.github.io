@@ -411,7 +411,7 @@ window.addEventListener('loaded-components', () => {
                 updateComment({ ...comment, text: commentInput.value })
             }
 
-            const newCommentModification = document.createElement('div')
+            const newCommentModification = document.createElement('section')
             newCommentModification.appendChild(cancelButton)
             newCommentModification.appendChild(saveButton)
 
@@ -464,12 +464,14 @@ window.addEventListener('loaded-components', () => {
 
             cancelButton.onclick = (e) => {
                 replyForm.parentElement.innerHTML = ''
+                replyFormState[comment.id] = null
             }
 
             replyForm.onsubmit = (e) => {
                 postComment(e, comment)
                 commentInput.value = ''
                 replyForm.parentElement.innerHTML = ''
+                replyFormState[comment.id] = null
             }
 
             replyForm.appendChild(commentInput)

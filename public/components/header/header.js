@@ -23,7 +23,9 @@ window.addEventListener('loaded-components', () => {
     updateAuthNav(lastAuthState === 'true')
 
     const lastEmailState = localStorage.getItem('lastEmailState') ?? false
-    if (lastEmailState === 'false') renderEmailVerificationBanner({ emailVerified: false })
+    if (lastEmailState === 'false' && lastAuthState === 'true') {
+        renderEmailVerificationBanner({ emailVerified: false })
+    }
 
     auth.onAuthStateChanged((user) => {
         localStorage.setItem('lastAuthState', user != null)
@@ -59,7 +61,7 @@ window.addEventListener('loaded-components', () => {
         }
     }
     function renderEmailVerificationBanner(user) {
-        localStorage.setItem('lastEmailState', user.emailVerified)
+        if (user) localStorage.setItem('lastEmailState', user.emailVerified)
 
         verifyEmailBanner.innerHTML = ''
         verifyEmailBanner.classList.add('hidden')
